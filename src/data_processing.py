@@ -43,7 +43,7 @@ def handle_missing_values(df):
     return df_clean
 
 def handle_outliers(df):
-    """Remove outliers using vectorized IQR method for all numeric columns"""
+    """Remove outliers per column by capping to bounds"""
     df_clean = df.copy()
     
     exclude_cols = ['id', 'popularity', 'duration_ms', 'key', 'mode', 
@@ -60,12 +60,12 @@ def handle_outliers(df):
     lower_bound = Q1 - 1.5 * IQR
     upper_bound = Q3 + 1.5 * IQR
 
-    mask = ((df_clean[num_cols] >= lower_bound) & (df_clean[num_cols] <= upper_bound)).all(axis=1)
-    df_clean = df_clean[mask]
-
-    removed_count = initial_shape - df_clean.shape[0]
-    print(f"Removed {removed_count} outliers")
-    print("Shape after outlier removal:", df_clean.shape)
+    for col in num_cols:
+        df_clean[col] = df_clean[col].clip(lower=lower_bound[col], upper=upper_bound[col])
+    
+    print(f"Outliers capped to IQR bounds")
+    print(f"Shape after outlier handling: {df_clean.shape}")
+    
     return df_clean
 
 
