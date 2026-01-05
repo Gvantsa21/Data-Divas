@@ -24,8 +24,6 @@ def load_data(path="data/raw/dataset.csv"):
     FileNotFoundError
         If the specified file path does not exist
     """
-    # Implementation here
-
     if not os.path.exists(path):
         raise FileNotFoundError(f"{path} not found.")
     
@@ -155,7 +153,19 @@ def convert_data_types(df):
 
 
 def create_derived_features(df):
-    """Add new features for analysis"""
+    """
+    creating new features from existing data to enhance analysis
+    
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset
+        
+    Returns
+    -------
+    pd.DataFrame
+        Dataset with additional derived features
+    """
     df_clean = df.copy()
     
     # Duration in minutes
@@ -177,9 +187,11 @@ def create_derived_features(df):
             df_clean['energy'] / df_clean['danceability'].replace(0, 0.001)
         ).round(3)
 
+    #indicates instrumental or not
     if 'instrumentalness' in df_clean.columns:
         df_clean['is_instrumental'] = (df_clean['instrumentalness'] > 0.5).astype(bool)
     
+    # pacing of the music
     if 'tempo' in df_clean.columns:
         df_clean['tempo_category'] = pd.cut(
             df_clean['tempo'],
@@ -187,10 +199,11 @@ def create_derived_features(df):
             labels=['Slow', 'Medium', 'Fast'],
             include_lowest=True
         )
-        
+    # acoustic or not    
     if 'acousticness' in df_clean.columns:
         df_clean['is_acoustic'] = (df_clean['acousticness'] > 0.5).astype(bool)
     
+    # to track music positiveness, mood and stuff
     if 'valence' in df_clean.columns:
         df_clean['valence_category'] = pd.cut(
             df_clean['valence'],
@@ -212,14 +225,12 @@ def save_clean_data(df, path="data/processed/spotify_cleaned.csv"):
     path : str
         csv file 
     """
-    
     os.makedirs(os.path.dirname(path), exist_ok=True)
     df.to_csv(path, index=False)
     print(f"Final cleaned data saved to {path}")
 
 def preprocess_pipeline(input_path="data/raw/dataset.csv",
                         output_path="data/processed/spotify_cleaned.csv"):
-    
     """
     complete preprocessing pipeline
     
