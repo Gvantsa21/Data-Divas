@@ -230,7 +230,8 @@ def save_clean_data(df, path="data/processed/spotify_cleaned.csv"):
     print(f"Final cleaned data saved to {path}")
 
 def preprocess_pipeline(input_path="data/raw/dataset.csv",
-                        output_path="data/processed/spotify_cleaned.csv"):
+                        output_path="data/processed/spotify_cleaned.csv",
+                        sample_size=None):
     """
     complete preprocessing pipeline
     
@@ -240,13 +241,20 @@ def preprocess_pipeline(input_path="data/raw/dataset.csv",
         path to raw CSV file
     output_path : str
         path to save cleaned CSV file
+    sample_size : int, optional
+        number of rows to sample (None for full dataset)
         
     Returns
     -------
     pd.DataFrame
         fully preprocessed and cleaned dataset
     """
-    df = load_data(input_path)
+    df = load_data(input_path)  # REMOVE sample_size=None HERE
+    
+    if sample_size and sample_size < len(df):
+        df = df.sample(n=sample_size, random_state=42)
+        print(f"Dataset sampled to {sample_size} rows\n")
+
     df = handle_missing_values(df)
     df = handle_outliers(df)
     df = convert_data_types(df)
@@ -256,4 +264,4 @@ def preprocess_pipeline(input_path="data/raw/dataset.csv",
     return df
 
 if __name__ == "__main__":
-    df_cleaned =preprocess_pipeline()
+    df_cleaned = preprocess_pipeline(sample_size=60000)
